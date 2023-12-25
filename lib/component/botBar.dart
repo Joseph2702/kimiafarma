@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class DemoBottomAppBar extends StatelessWidget {
   final VoidCallback onFabPressed;
 
-  const DemoBottomAppBar({Key? key, required this.onFabPressed}) : super(key: key);
+  const DemoBottomAppBar({Key? unikey, required this.onFabPressed})
+      : super(key: unikey);
 
   @override
   Widget build(BuildContext context) {

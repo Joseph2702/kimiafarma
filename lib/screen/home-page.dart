@@ -23,7 +23,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onFabPressed() {
     print('FAB pressed');
- 
   }
 
   @override
@@ -75,7 +74,7 @@ class _HomePageState extends State<HomePage> {
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
+      // bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
   }
 
@@ -103,16 +102,16 @@ class _HomePageState extends State<HomePage> {
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
             ),
-            onChanged: (value) {
-
-            },
+            onChanged: (value) {},
           ),
         ),
         Expanded(
           child: ListView(
             children: [
-              _buildInventoryItem('Item 1', 'Description for Item 1', 'assets/item1.jpg'),
-              _buildInventoryItem('Item 2', 'Description for Item 2', 'assets/item2.jpg'),
+              _buildInventoryItem(
+                  'Item 1', 'Description for Item 1', 'assets/item1.jpg'),
+              _buildInventoryItem(
+                  'Item 2', 'Description for Item 2', 'assets/item2.jpg'),
             ],
           ),
         ),
