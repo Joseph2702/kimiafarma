@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kimiafarma/component/theme.dart';
 
 class DemoBottomAppBar extends StatelessWidget {
   final VoidCallback onFabPressed;
@@ -10,7 +11,7 @@ class DemoBottomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
-      color: Colors.blueGrey,
+      color: colorBlueBase,
       child: IconTheme(
         data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
         child: Row(
@@ -20,14 +21,14 @@ class DemoBottomAppBar extends StatelessWidget {
               tooltip: 'Home',
               icon: const Icon(Icons.home),
               onPressed: () {
-                // Handle the Home button press
+                 Navigator.pushNamed(context, 'home_page');
               },
             ),
             IconButton(
               tooltip: 'Profile',
               icon: const Icon(Icons.person),
               onPressed: () {
-                // Handle the Profile button press
+                Navigator.pushNamed(context, 'profile_page');
               },
             ),
           ],

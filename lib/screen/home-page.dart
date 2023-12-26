@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kimiafarma/component/botBar.dart';
+import 'package:kimiafarma/component/theme.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -29,9 +30,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueGrey,
-        centerTitle: true,
-        title: Text('Kimia Farma'),
+        backgroundColor: colorBlueBase,
+        centerTitle: false,
+      //  flexibleSpace: Center(
+      //     child: Image.asset(
+      //       'assets/logo.jpg',
+      //       width: 80,
+      //       height: 90,
+      //     ),
+      //   ),
       ),
       body: Row(
         children: <Widget>[
@@ -74,7 +81,7 @@ class _HomePageState extends State<HomePage> {
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
+      bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
   }
 
@@ -119,16 +126,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildInventoryItem(String title, String subtitle, String imagePath) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(subtitle),
-      leading: Image.asset(
-        imagePath,
-        width: 48,
-        height: 48,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
+ Widget _buildInventoryItem(String title, String subtitle, String imagePath) {
+  final key = ValueKey<String>(title);
+
+  return ListTile(
+    key: key,
+    title: Text(title),
+    subtitle: Text(subtitle),
+    leading: Image.asset(
+      imagePath,
+      width: 48,
+      height: 48,
+      fit: BoxFit.cover,
+    ),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: Icon(Icons.edit, color: colorOrangeBase),
+          onPressed: () {
+
+            print('Edit button pressed for $title');
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.disabled_by_default_rounded, color: Colors.red,),
+          onPressed: () {
+
+            print('Delete button pressed for $title');
+          },
+        ),
+      ],
+    ),
+  );
+}
 }
