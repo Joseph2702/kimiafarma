@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kimiafarma/component/botBar.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,13 +26,45 @@ class _HomePageState extends State<HomePage> {
     print('FAB pressed');
   }
 
+  final List<String> medicineNames = [
+    'Paracetamol',
+    'Aspirin',
+    'Ibuprofen',
+    'Cetirizine',
+    'Omeprazole',
+    'Amoxicillin',
+    'Loratadine',
+    'Metformin',
+    'Atorvastatin',
+    'Losartan',
+  ];
+
+  final List<String> medicineTypes = [
+    'Pain Reliever',
+    'Pain Reliever',
+    'Anti-Inflammatory',
+    'Antihistamine',
+    'Proton Pump Inhibitor',
+    'Antibiotic',
+    'Antihistamine',
+    'Antidiabetic',
+    'Statins',
+    'Antihypertensive',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueGrey,
-        centerTitle: true,
-        title: Text('Kimia Farma'),
+        leadingWidth: 100,
+        automaticallyImplyLeading: true,
+        backgroundColor: Color.fromARGB(255, 96, 125, 139),
+        // title: Text('Kimia Farma'),
+        leading: SvgPicture.asset(
+          'assets/kimiafarma.svg',
+          height: 20,
+          width: double.infinity,
+        ),
       ),
       body: Row(
         children: <Widget>[
@@ -39,12 +72,26 @@ class _HomePageState extends State<HomePage> {
             labelType: NavigationRailLabelType.all,
             destinations: [
               NavigationRailDestination(
-                icon: Icon(Icons.home),
-                label: Text('Home'),
+                icon: Icon(
+                  Icons.home,
+                  color: Colors.blueGrey,
+                ),
+                label: Text(
+                  'Home',
+                  style: TextStyle(
+                      color: Colors.blueGrey, fontFamily: 'Poppins-Regular'),
+                ),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.inventory_2_outlined),
-                label: Text('Inventory'),
+                icon: Icon(
+                  Icons.inventory,
+                  color: Colors.blueGrey,
+                ),
+                label: Text(
+                  'Inventory',
+                  style: TextStyle(
+                      color: Colors.blueGrey, fontFamily: 'Poppins-Regular'),
+                ),
               ),
             ],
             selectedIndex: _selectedIndex,
@@ -81,7 +128,96 @@ class _HomePageState extends State<HomePage> {
   Widget _getPage(int index) {
     switch (index) {
       case 0:
-        return Text('Home Page');
+        return Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  'Welcome, Username',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Poppins-Bold',
+                      color: Colors.black),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 200,
+                  child: Card(
+                    color: Colors.blueGrey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        // crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'Medicine in capacity',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Poppins-Bold',
+                                color: Colors.white),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            '10',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Poppins-Bold',
+                                color: Colors.white),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search...',
+                      prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blueGrey),
+                      ),
+                    ),
+                    cursorColor: Colors.blueGrey,
+                    onChanged: (value) {
+                      // Handle search functionality here
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: medicineNames.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(medicineNames[index]),
+                        subtitle: Text(medicineTypes[index]),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: DemoBottomAppBar(),
+        );
+
       case 1:
         return _buildInventoryPage();
       case 2:
