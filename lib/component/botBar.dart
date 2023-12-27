@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kimiafarma/component/theme.dart';
 
 class DemoBottomAppBar extends StatelessWidget {
-  final VoidCallback onFabPressed;
-
-  const DemoBottomAppBar({Key? unikey, required this.onFabPressed})
-      : super(key: unikey);
+  const DemoBottomAppBar({Key? unikey, required void Function() onFabPressed}) : super(key: unikey);
 
   @override
   Widget build(BuildContext context) {

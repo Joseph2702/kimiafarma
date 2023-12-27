@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kimiafarma/screen/home-page.dart';
-import 'package:kimiafarma/screen/profile.dart';
+import 'package:kimiafarma/screen/profile-page.dart';
 
 void main() {
   runApp(const MyApp());
