@@ -9,16 +9,13 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isPasswordVisible = false;
-  String errorMessage = ''; // Menyimpan pesan kesalahan
+  String errorMessage = '';
   bool isButtonEnabled = false;
 
-  // Function untuk menangani ketika "Forgot Password?" ditekan
   void _handleForgotPassword(BuildContext context) {
-    // Navigasi ke halaman forgot_page
     Navigator.pushNamed(context, 'forgot_page');
   }
 
-  // Validate the password length
   String? _validatePassword(String value) {
     if (value.isEmpty) {
       return 'Password is required';
@@ -28,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  // Show an alert dialog with a given message
   void _showAlert(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -49,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Update the button state based on the password length
   void _updateButtonState() {
     setState(() {
       isButtonEnabled = passwordController.text.length >= 6;
@@ -81,7 +76,6 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Gambar Gudang
               Image.asset(
                 'assets/obat.png',
                 width: 200.0,

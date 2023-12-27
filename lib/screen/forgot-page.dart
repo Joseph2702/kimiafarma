@@ -67,7 +67,7 @@ class _ForgotPageState extends State<ForgotPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/forgot_password.png',
+                'assets/forgot.png',
                 width: 200.0,
                 height: 200.0,
               ),
@@ -107,11 +107,8 @@ class _ForgotPageState extends State<ForgotPage> {
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        // Implementasi logika reset password di sini
                         String email = emailController.text.trim();
                         if (email.isNotEmpty) {
-                          // Tampilkan pesan atau notifikasi bahwa proses reset password berhasil
-                          // Implementasi logika pengiriman email reset password
                           _showAlertDialog(
                               'Link reset password telah dikirim ke email Anda.');
                         } else {

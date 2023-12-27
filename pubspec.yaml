@@ -63,6 +63,7 @@ flutter:
     - assets/undraw_medicine_b-1-ol.svg
     - assets/logo.jpg
     - assets/obat.png
+    - assets/forgot.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
