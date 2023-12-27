@@ -10,12 +10,50 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   bool isPasswordVisible = false;
   String errorMessage = ''; // Menyimpan pesan kesalahan
+  bool isButtonEnabled = false;
 
   // Function untuk menangani ketika "Forgot Password?" ditekan
-  void _handleForgotPassword() {
-    // Logika untuk menghandle lupa password
-    print('Forgot Password tapped');
-    // Misalnya, tampilkan dialog reset password atau navigasi ke halaman reset password.
+  void _handleForgotPassword(BuildContext context) {
+    // Navigasi ke halaman forgot_page
+    Navigator.pushNamed(context, 'forgot_page');
+  }
+
+  // Validate the password length
+  String? _validatePassword(String value) {
+    if (value.isEmpty) {
+      return 'Password is required';
+    } else if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    return null;
+  }
+
+  // Show an alert dialog with a given message
+  void _showAlert(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Alert'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Update the button state based on the password length
+  void _updateButtonState() {
+    setState(() {
+      isButtonEnabled = passwordController.text.length >= 6;
+    });
   }
 
   @override
@@ -80,14 +118,15 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 10),
                     TextField(
                       controller: passwordController,
+                      onChanged: (value) {
+                        _updateButtonState();
+                      },
                       decoration: InputDecoration(
                         labelText: 'Password',
                         icon: Icon(Icons.lock),
                         suffixIcon: IconButton(
                           onPressed: () {
-                            setState(() {
-                              isPasswordVisible = !isPasswordVisible;
-                            });
+                            isPasswordVisible = !isPasswordVisible;
                           },
                           icon: Icon(
                             isPasswordVisible
@@ -95,14 +134,15 @@ class _LoginPageState extends State<LoginPage> {
                                 : Icons.visibility_off,
                           ),
                         ),
-                        errorText:
-                            errorMessage.isNotEmpty ? errorMessage : null,
+                        errorText: _validatePassword(passwordController.text),
                       ),
                       obscureText: !isPasswordVisible,
                     ),
                     SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: _handleForgotPassword,
+                    InkWell(
+                      onTap: () {
+                        _handleForgotPassword(context);
+                      },
                       child: Container(
                         alignment: Alignment.centerRight,
                         child: Text(
@@ -119,29 +159,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Logika autentikasi
-                  String email = emailController.text.trim();
-                  String password = passwordController.text.trim();
-
-                  // Validasi email dan password (tambahkan validasi sesuai kebutuhan)
-                  if (email == 'user@example.com' && password == 'password') {
-                    // Tambahkan logika autentikasi di sini
-                    // Misalnya, panggil metode login(email, password)
-                    // Jika berhasil, pindah ke halaman beranda
-                    // Jika gagal, tampilkan pesan kesalahan
-                    setState(() {
-                      errorMessage =
-                          ''; // Reset pesan kesalahan jika login berhasil
-                    });
-                    print('Login successful');
-                  } else {
-                    // Tampilkan pesan kesalahan jika email atau password salah
-                    setState(() {
-                      errorMessage = 'Email or password is incorrect';
-                    });
-                  }
-                },
+                onPressed: isButtonEnabled
+                    ? () {
+                        print('Login button pressed');
+                        Navigator.pushReplacementNamed(context, 'home_page');
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   primary: Color.fromARGB(255, 201, 120, 0),
                   padding: EdgeInsets.symmetric(vertical: 15),
@@ -155,8 +178,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     'Masuk',
                     style: TextStyle(
-                        fontSize: 16,
-                        color: Color.fromARGB(255, 255, 255, 255)),
+                      fontSize: 16,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
                   ),
                 ),
               ),

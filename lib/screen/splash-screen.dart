@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
             FadeTransition(
               opacity: _animation,
               child: Image.asset(
-                'assets/logo.png',
+                'assets/logo.jpg',
                 width: 300.0,
                 height: 300.0,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kimiafarma/component/botBar.dart';
+import 'package:kimiafarma/component/theme.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile"),
+        backgroundColor: colorBlueBase,
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -41,7 +43,7 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundColor: Colors.blue,
+                backgroundColor: colorBlueBase,
                 child: Icon(
                   Icons.person,
                   size: 80,
@@ -95,8 +97,12 @@ class ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.80,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                     Navigator.pushNamed(context, 'login_page');
+                  },
                   child: Text('LOG OUT'),
+                  
+                  
                 ),
               ),
             ],

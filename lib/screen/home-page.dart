@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:kimiafarma/component/botBar.dart';
-import 'package:kimiafarma/component/theme.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,7 +10,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
 
   final List<String> medicineNames = [
     'Paracetamol',
@@ -42,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorBlueBase,
+        backgroundColor: Colors.blue,
         centerTitle: true,
         title: Text('Kimia Farma'),
       ),
@@ -54,23 +53,23 @@ class _HomePageState extends State<HomePage> {
               NavigationRailDestination(
                 icon: Icon(
                   Icons.home,
-                  color: colorBlueBase,
+                  color: Colors.blue,
                 ),
                 label: Text(
                   'Home',
                   style: TextStyle(
-                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
+                      color: Colors.blue, fontFamily: 'Poppins-Regular'),
                 ),
               ),
               NavigationRailDestination(
                 icon: Icon(
                   Icons.inventory,
-                  color: colorBlueBase,
+                  color: Colors.blue,
                 ),
                 label: Text(
                   'Inventory',
                   style: TextStyle(
-                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
+                      color: Colors.blue, fontFamily: 'Poppins-Regular'),
                 ),
               ),
             ],
@@ -94,7 +93,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: _selectedIndex == 1
           ? FloatingActionButton(
-              onPressed: _onFabPressed,
+              onPressed: _showCreateItemModal,
               tooltip: 'Create',
               child: Icon(Icons.add),
               backgroundColor: Colors.orangeAccent,
@@ -104,16 +103,77 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
   }
-   void _onHomePressed() {
-    print('Home button pressed');
-  }
 
-  void _onInventoryPressed() {
-    print('Inventory button pressed');
-  }
+  Future<void> _showCreateItemModal() async {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController stockController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
+    String? filePath;
 
-  void _onProfilePressed() {
-    print('Profile button pressed');
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Create New Item',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: stockController,
+                decoration: InputDecoration(labelText: 'Stock'),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(labelText: 'Description'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles();
+                  if (result != null) {
+                    filePath = result.files.single.path;
+                  }
+                },
+                child: Text('Pick a File'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  String name = nameController.text.trim();
+                  String stock = stockController.text.trim();
+                  String description = descriptionController.text.trim();
+
+                  print('Name: $name, Stock: $stock, Description: $description');
+                  if (filePath != null) {
+                    print('File Path: $filePath');
+                  }
+
+                  Navigator.pop(context);
+                },
+                child: Text('Create'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _onFabPressed() {
@@ -133,9 +193,10 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   'Welcome, Username',
                   style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Bold',
-                      color: Colors.black),
+                    fontSize: 16,
+                    fontFamily: 'Poppins-Bold',
+                    color: Colors.black,
+                  ),
                 ),
                 SizedBox(
                   height: 5,
@@ -144,19 +205,19 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   height: 150,
                   child: Card(
-                    color: colorBlueBase,
+                    color: Colors.blue,
                     child: Padding(
                       padding: const EdgeInsets.all(18.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        // crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
                             'Medicine in capacity',
                             style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Poppins-Bold',
-                                color: Colors.white),
+                              fontSize: 20,
+                              fontFamily: 'Poppins-Bold',
+                              color: Colors.white,
+                            ),
                           ),
                           SizedBox(
                             height: 10,
@@ -164,9 +225,10 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             '10',
                             style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Poppins-Bold',
-                                color: Colors.white),
+                              fontSize: 20,
+                              fontFamily: 'Poppins-Bold',
+                              color: Colors.white,
+                            ),
                           ),
                           SizedBox(
                             height: 5,
@@ -181,18 +243,17 @@ class _HomePageState extends State<HomePage> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Search...',
-                      prefixIcon: Icon(Icons.search, color: colorBlueBase),
+                      prefixIcon: Icon(Icons.search, color: Colors.blue),
                       border: OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: colorBlueBase),
+                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
-                    cursorColor: colorBlueBase,
-                    onChanged: (value) {
-                    },
+                    cursorColor: Colors.blue,
+                    onChanged: (value) {},
                   ),
                 ),
                 Expanded(
@@ -248,38 +309,36 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
- Widget _buildInventoryItem(String title, String subtitle, String imagePath) {
-  final key = ValueKey<String>(title);
+  Widget _buildInventoryItem(String title, String subtitle, String imagePath) {
+    final key = ValueKey<String>(title);
 
-  return ListTile(
-    key: key,
-    title: Text(title),
-    subtitle: Text(subtitle),
-    leading: Image.asset(
-      imagePath,
-      width: 48,
-      height: 48,
-      fit: BoxFit.cover,
-    ),
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: Icon(Icons.edit, color: colorOrangeBase),
-          onPressed: () {
-
-            print('Edit button pressed for $title');
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.disabled_by_default_rounded, color: Colors.red,),
-          onPressed: () {
-
-            print('Delete button pressed for $title');
-          },
-        ),
-      ],
-    ),
-  );
-}
+    return ListTile(
+      key: key,
+      title: Text(title),
+      subtitle: Text(subtitle),
+      leading: Image.asset(
+        imagePath,
+        width: 48,
+        height: 48,
+        fit: BoxFit.cover,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.orange),
+            onPressed: () {
+              print('Edit button pressed for $title');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              print('Delete button pressed for $title');
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
