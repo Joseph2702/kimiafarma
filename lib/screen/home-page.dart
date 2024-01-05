@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
@@ -11,32 +13,66 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  String userName = "";
 
-  final List<String> medicineNames = [
-    'Paracetamol',
-    'Aspirin',
-    'Ibuprofen',
-    'Cetirizine',
-    'Omeprazole',
-    'Amoxicillin',
-    'Loratadine',
-    'Metformin',
-    'Atorvastatin',
-    'Losartan',
-  ];
+  User? user = FirebaseAuth.instance.currentUser;
 
-  final List<String> medicineTypes = [
-    'Pain Reliever',
-    'Pain Reliever',
-    'Anti-Inflammatory',
-    'Antihistamine',
-    'Proton Pump Inhibitor',
-    'Antibiotic',
-    'Antihistamine',
-    'Antidiabetic',
-    'Statins',
-    'Antihypertensive',
-  ];
+  List<String> medicineNames = [];
+  List<String> medicineTypes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    if (user != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>> userData =
+            await FirebaseFirestore.instance
+                .collection('admin')
+                .doc(user!.uid)
+                .get();
+
+        if (userData.exists) {
+          String nama = userData['nama'];
+
+          setState(() {
+            userName = nama;
+          });
+        }
+      } catch (e) {
+        print('Error fetching user data: $e');
+      }
+    }
+  }
+
+  // final List<String> medicineNames = [
+  //   'Paracetamol',
+  //   'Aspirin',
+  //   'Ibuprofen',
+  //   'Cetirizine',
+  //   'Omeprazole',
+  //   'Amoxicillin',
+  //   'Loratadine',
+  //   'Metformin',
+  //   'Atorvastatin',
+  //   'Losartan',
+  // ];
+
+  // final List<String> medicineTypes = [
+  //   'Pain Reliever',
+  //   'Pain Reliever',
+  //   'Anti-Inflammatory',
+  //   'Antihistamine',
+  //   'Proton Pump Inhibitor',
+  //   'Antibiotic',
+  //   'Antihistamine',
+  //   'Antidiabetic',
+  //   'Statins',
+  //   'Antihypertensive',
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +229,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Text(
-                  'Welcome, Username',
+                  'Welcome, $userName',
                   style: TextStyle(
                     fontSize: 16,
                     fontFamily: 'Poppins-Bold',
@@ -259,12 +295,40 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: medicineNames.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(medicineNames[index]),
-                        subtitle: Text(medicineTypes[index]),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('obat')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      }
+
+                      var data = snapshot.data!.docs;
+                      medicineNames = [];
+                      medicineTypes = [];
+
+                      for (var document in data) {
+                        medicineNames.add(document['nama_obat']);
+                        medicineTypes.add(document['jenis']);
+                      }
+
+                      return ListView.builder(
+                        itemCount: medicineNames.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(medicineNames[index]),
+                            subtitle: Text(medicineTypes[index]),
+                          );
+                        },
                       );
                     },
                   ),
