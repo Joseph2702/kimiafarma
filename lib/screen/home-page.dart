@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
@@ -105,6 +104,17 @@ class _HomePageState extends State<HomePage> {
                 ),
                 label: Text(
                   'Inventory',
+                  style: TextStyle(
+                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
+                ),
+              ),
+              NavigationRailDestination(
+                icon: Icon(
+                  Icons.work,
+                  color: colorBlueBase,
+                ),
+                label: Text(
+                  'Employee',
                   style: TextStyle(
                       color: colorBlueBase, fontFamily: 'Poppins-Regular'),
                 ),
@@ -341,7 +351,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return _buildInventoryPage();
       case 2:
-        return Text('Profile Page');
+        return _buildEmployeePage();
       default:
         return Text('Invalid Page');
     }
@@ -405,6 +415,102 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmployeePage() {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('karyawan').snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search Employee...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  // Implement search logic if needed
+                },
+              ),
+            ),
+            SizedBox(
+                height: 8.0), // Adjust the spacing between search and upload
+            Container(
+              child: IconButton(
+                // alignment: AlignmentDirectional.centerEnd,
+                icon: Icon(
+                  Icons.file_upload,
+                  color: colorBlueBase,
+                  size: 30,
+                ), // Upload icon
+                onPressed: () {},
+              ),
+            ),
+            SizedBox(height: 15.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var karyawan = snapshot.data!.docs[index];
+                  return Column(
+                    children: [
+                      Container(
+                        color: Colors.grey[100],
+                        child: ListTile(
+                          leading: Text(karyawan['nopekerja'].toString()),
+                          title: Text(karyawan['Nama']),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(karyawan['email']),
+                              SizedBox(
+                                height: 2,
+                              ),
+                              Text(karyawan['Cabang']),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: colorBlueBase),
+                                onPressed: () {
+                                  // Handle edit action
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  // Handle delete action
+                                },
+                              ),
+                            ],
+                          ),
+                          // Add more fields as needed
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
