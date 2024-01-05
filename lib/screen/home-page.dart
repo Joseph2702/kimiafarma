@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:kimiafarma/component/botBar.dart';
+import 'package:kimiafarma/component/theme.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: colorBlueBase,
         centerTitle: true,
         title: Text('Kimia Farma'),
       ),
@@ -53,23 +54,23 @@ class _HomePageState extends State<HomePage> {
               NavigationRailDestination(
                 icon: Icon(
                   Icons.home,
-                  color: Colors.blue,
+                  color: colorBlueBase,
                 ),
                 label: Text(
                   'Home',
                   style: TextStyle(
-                      color: Colors.blue, fontFamily: 'Poppins-Regular'),
+                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
                 ),
               ),
               NavigationRailDestination(
                 icon: Icon(
                   Icons.inventory,
-                  color: Colors.blue,
+                  color: colorBlueBase,
                 ),
                 label: Text(
                   'Inventory',
                   style: TextStyle(
-                      color: Colors.blue, fontFamily: 'Poppins-Regular'),
+                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
                 ),
               ),
             ],
@@ -206,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   height: 150,
                   child: Card(
-                    color: Colors.blue,
+                    color: colorBlueBase,
                     child: Padding(
                       padding: const EdgeInsets.all(18.0),
                       child: Column(

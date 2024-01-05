@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kimiafarma/component/botBar.dart';
+import 'package:kimiafarma/component/rounded_button.dart';
 import 'package:kimiafarma/component/theme.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -26,7 +27,7 @@ class ProfilePageState extends State<ProfilePage> {
   void _onFabPressed() {
     print('FAB pressed');
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,13 +97,12 @@ class ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 30),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.80,
-                child: ElevatedButton(
+                child: RoundedButton(
+                  colour: colorBlueBase,
+                  title: 'Log Out',
                   onPressed: () {
-                     Navigator.pushNamed(context, 'login_page');
+                    Navigator.pushNamed(context, 'login_page');
                   },
-                  child: Text('LOG OUT'),
-                  
-                  
                 ),
               ),
             ],
@@ -120,7 +120,5 @@ class ProfilePageState extends State<ProfilePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
-    
   }
-  
 }
