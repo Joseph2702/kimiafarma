@@ -8,7 +8,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
-  
+  //profile page
   int _selectedIndex = 0;
 
   void _onHomePressed() {
