@@ -160,7 +160,8 @@ class _HomePageState extends State<HomePage> {
                   String stock = stockController.text.trim();
                   String description = descriptionController.text.trim();
 
-                  print('Name: $name, Stock: $stock, Description: $description');
+                  print(
+                      'Name: $name, Stock: $stock, Description: $description');
                   if (filePath != null) {
                     print('File Path: $filePath');
                   }

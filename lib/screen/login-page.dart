@@ -1,184 +1,143 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kimiafarma/component/rounded_button.dart';
+import 'package:kimiafarma/component/theme.dart';
+import 'package:kimiafarma/screen/forgot-page.dart';
+
+const kTextFieldDecoration = InputDecoration(
+    hintText: 'Enter a value',
+    hintStyle: TextStyle(color: Colors.grey),
+    contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(3.0)),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: colorBlueBase, width: 1.0),
+      borderRadius: BorderRadius.all(Radius.circular(3.0)),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: colorBlueBase, width: 2.0),
+      borderRadius: BorderRadius.all(Radius.circular(3.0)),
+    ));
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
+final _auth = FirebaseAuth.instance;
+
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool isPasswordVisible = false;
+  late String email;
+  late String password;
+
   String errorMessage = '';
-  bool isButtonEnabled = false;
+  bool _isobsecured = true;
 
-  void _handleForgotPassword(BuildContext context) {
-    Navigator.pushNamed(context, 'forgot_page');
+  bool isPasswordValid(String password) {
+    // Regex for at least 6 characters
+    RegExp regex = RegExp(r'^.{6,}$');
+    return regex.hasMatch(password);
   }
 
-  String? _validatePassword(String value) {
-    if (value.isEmpty) {
-      return 'Password is required';
-    } else if (value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-    return null;
-  }
-
-  void _showAlert(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Alert'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _updateButtonState() {
-    setState(() {
-      isButtonEnabled = passwordController.text.length >= 6;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Login'),
-      //   backgroundColor: Color.fromARGB(255, 209, 208, 208),
-      // ),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: Color.fromARGB(255, 1, 3, 110),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromARGB(255, 145, 144, 144).withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/obat.png',
-                width: 200.0,
-                height: 200.0,
-              ),
-              SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromARGB(255, 201, 120, 0).withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        icon: Icon(Icons.email),
-                        errorText:
-                            errorMessage.isNotEmpty ? errorMessage : null,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            SvgPicture.asset(
+              'assets/undraw_medicine_b-1-ol.svg',
+              height: 300,
+              width: 250,
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            TextField(
+                keyboardType: TextInputType.emailAddress,
+                textAlign: TextAlign.start,
+                onChanged: (value) {
+                  email = value;
+//Do something with the user input.
+                },
+                decoration: kTextFieldDecoration.copyWith(
+                  hintText: 'Enter your email',
+                )),
+            SizedBox(height: 20.0),
+            TextField(
+                obscureText: _isobsecured,
+                textAlign: TextAlign.start,
+                onChanged: (value) {
+                  password = value;
+                },
+                decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Enter your password.',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isobsecured ? Icons.visibility : Icons.visibility_off,
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: passwordController,
-                      onChanged: (value) {
-                        _updateButtonState();
+                      onPressed: () {
+                        setState(() {
+                          _isobsecured = !_isobsecured;
+                        });
                       },
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        icon: Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            isPasswordVisible = !isPasswordVisible;
-                          },
-                          icon: Icon(
-                            isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                        ),
-                        errorText: _validatePassword(passwordController.text),
-                      ),
-                      obscureText: !isPasswordVisible,
-                    ),
-                    SizedBox(height: 10),
-                    InkWell(
-                      onTap: () {
-                        _handleForgotPassword(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ))),
+            SizedBox(
+              height: 15.0,
+            ),
+            Text(
+              errorMessage,
+              style: TextStyle(color: Colors.red),
+            ),
+            RoundedButton(
+                colour: colorBlueBase,
+                title: 'Log In',
+                onPressed: () async {
+                  setState(() {});
+                  try {
+                    if (!isPasswordValid(password)) {
+                      setState(() {
+                        errorMessage =
+                            'Password must be at least 6 characters long.';
+                      });
+                      return;
+                    }
+                    final user = await _auth.signInWithEmailAndPassword(
+                        email: email, password: password);
+                    if (user != null) {
+                      Navigator.popAndPushNamed(context, 'home_page');
+                    }
+                  } catch (e) {
+                    setState(() {
+                      // untuk menampilkan pesan kesalahan
+                      errorMessage =
+                          'Login Failed check your email and password';
+                    });
+                    print(e);
+                  }
+                  setState(() {});
+                }),
+            GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ForgotPage()),
+                );
+              },
+              child: Text(
+                'Forget your password ?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: colorBlueBase,
+                  decoration: TextDecoration.underline,
                 ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isButtonEnabled
-                    ? () {
-                        print('Login button pressed');
-                        Navigator.pushReplacementNamed(context, 'home_page');
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 201, 120, 0),
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Masuk',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
