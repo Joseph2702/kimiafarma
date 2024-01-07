@@ -20,6 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isPickingFile = false;
   int _selectedIndex = 0;
+  String searchItem = '';
 
   String userName = "";
   final KaryawanService _karyawanService = KaryawanService();
@@ -322,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                         //   }
                         // }
                       },
-                      child:  Text(documentId == null ? 'Create' : 'Update'),
+                      child: Text(documentId == null ? 'Create' : 'Update'),
                     ),
                   ],
                 ),
@@ -332,6 +333,36 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  Future<int> getDataCount() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('obat')
+          .get();
+
+      int documentCount = querySnapshot.size;
+
+      return documentCount;
+    } catch (e) {
+      print('Error reading data: $e');
+      return 0;
+    }
+  }
+
+  List<String> filteredMedicineNames = [];
+  List<String> filteredMedicineTypes = [];
+
+  void filterData() {
+    filteredMedicineNames.clear();
+    filteredMedicineTypes.clear();
+
+    for (int i = 0; i < medicineNames.length; i++) {
+      if (medicineNames[i].toLowerCase().contains(searchItem)) {
+        filteredMedicineNames.add(medicineNames[i]);
+        filteredMedicineTypes.add(medicineTypes[i]);
+      }
+    }
   }
 
   void _onFabPressed() {
@@ -365,9 +396,10 @@ class _HomePageState extends State<HomePage> {
                   child: Card(
                     color: colorBlueBase,
                     child: Padding(
-                      padding: const EdgeInsets.all(18.0),
+                      padding: const EdgeInsets.all(30.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
                             'Medicine in capacity',
@@ -380,13 +412,26 @@ class _HomePageState extends State<HomePage> {
                           SizedBox(
                             height: 10,
                           ),
-                          Text(
-                            '10',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Poppins-Bold',
-                              color: Colors.white,
-                            ),
+                          FutureBuilder<int>(
+                            future: getDataCount(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else {
+                                int itemCount = snapshot.data ?? 0;
+                                return Text(
+                                  '$itemCount',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'Poppins-Bold',
+                                    color: Colors.white,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                           SizedBox(
                             height: 5,
@@ -411,7 +456,12 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     cursorColor: Colors.blue,
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      setState(() {
+                        searchItem = value.toLowerCase();
+                        filterData();
+                      });
+                    },
                   ),
                 ),
                 Expanded(
@@ -441,12 +491,14 @@ class _HomePageState extends State<HomePage> {
                         medicineTypes.add(document['jenis']);
                       }
 
+                      filterData();
+
                       return ListView.builder(
-                        itemCount: medicineNames.length,
+                        itemCount: filteredMedicineNames.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            title: Text(medicineNames[index]),
-                            subtitle: Text(medicineTypes[index]),
+                            title: Text(filteredMedicineNames[index]),
+                            subtitle: Text(filteredMedicineTypes[index]),
                           );
                         },
                       );
@@ -478,7 +530,11 @@ class _HomePageState extends State<HomePage> {
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
             ),
-            onChanged: (value) {},
+            onChanged: (value) {
+              setState(() {
+                searchItem = value.toLowerCase();
+              });
+            },
           ),
         ),
         Expanded(
@@ -499,10 +555,15 @@ class _HomePageState extends State<HomePage> {
 
               var data = snapshot.data!.docs;
 
+              var filteredData = data.where((item) {
+                return item['nama_obat'].toLowerCase().contains(searchItem) ||
+                    item['jenis'].toLowerCase().contains(searchItem);
+              }).toList();
+
               return ListView.builder(
-                itemCount: data.length,
+                itemCount: filteredData.length,
                 itemBuilder: (context, index) {
-                  var item = data[index];
+                  var item = filteredData[index];
                   return _buildInventoryItem(
                       item['nama_obat'], item['jenis'], item.id);
                 },
