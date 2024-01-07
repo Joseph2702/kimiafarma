@@ -451,7 +451,7 @@ class _HomePageState extends State<HomePage> {
                   // _bootcampService.deleteBootcamp(document.id);
                   _showDeleteConfirmationDialog(
                       context, document.id, data['nama']);
-                }))
+                })),
           ]);
           rows.add(row);
         }
