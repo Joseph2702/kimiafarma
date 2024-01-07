@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:kimiafarma/component/botBar.dart';
 import 'package:kimiafarma/component/theme.dart';
+import 'package:kimiafarma/component/karyawan_model.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,8 +15,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  String userName = "";
 
+  String userName = "";
+  final KaryawanService _karyawanService = KaryawanService();
   User? user = FirebaseAuth.instance.currentUser;
 
   List<String> medicineNames = [];
@@ -133,7 +136,7 @@ class _HomePageState extends State<HomePage> {
             width: 1,
           ),
           Expanded(
-            child: Center(
+            child: Container(
               child: _getPage(_selectedIndex),
             ),
           ),
@@ -258,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                     child: Padding(
                       padding: const EdgeInsets.all(18.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
                             'Medicine in capacity',
@@ -421,7 +424,10 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildEmployeePage() {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('karyawan').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('karyawan')
+          .orderBy('nopekerja')
+          .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -430,84 +436,95 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         }
-
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search Employee...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+        List<DocumentSnapshot> documents = snapshot.data!.docs;
+        List<DataRow> rows = [];
+        for (var document in documents) {
+          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+          DataRow row = DataRow(cells: [
+            DataCell(Text(data['nopekerja']?.toString() ?? '')),
+            DataCell(Text(data['nama'] ?? '')),
+            DataCell(Text(data['cabang'] ?? '')),
+            DataCell(Text(data['alamatToko'] ?? '')),
+            DataCell(IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  // _bootcampService.deleteBootcamp(document.id);
+                  _showDeleteConfirmationDialog(
+                      context, document.id, data['nama']);
+                }))
+          ]);
+          rows.add(row);
+        }
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                    height:
+                        8.0), // Adjust the spacing between search and upload
+                Container(
+                  child: IconButton(
+                    alignment: AlignmentDirectional.centerEnd,
+                    visualDensity: VisualDensity.standard,
+                    icon: Icon(
+                      Icons.file_upload,
+                      color: colorBlueBase,
+                      size: 30,
+                    ), // Upload icon
+                    onPressed: () {
+                      _karyawanService.importKaryawanfromCSV(context);
+                    },
+                  ),
                 ),
-                onChanged: (value) {
-                  // Implement search logic if needed
-                },
-              ),
-            ),
-            SizedBox(
-                height: 8.0), // Adjust the spacing between search and upload
-            Container(
-              child: IconButton(
-                // alignment: AlignmentDirectional.centerEnd,
-                icon: Icon(
-                  Icons.file_upload,
-                  color: colorBlueBase,
-                  size: 30,
-                ), // Upload icon
-                onPressed: () {},
-              ),
-            ),
-            SizedBox(height: 15.0),
-            Expanded(
-              child: ListView.builder(
-                itemCount: snapshot.data!.docs.length,
-                itemBuilder: (context, index) {
-                  var karyawan = snapshot.data!.docs[index];
-                  return Column(
-                    children: [
-                      Container(
-                        color: Colors.grey[100],
-                        child: ListTile(
-                          leading: Text(karyawan['nopekerja'].toString()),
-                          title: Text(karyawan['Nama']),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(karyawan['email']),
-                              SizedBox(
-                                height: 2,
-                              ),
-                              Text(karyawan['Cabang']),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit, color: colorBlueBase),
-                                onPressed: () {
-                                  // Handle edit action
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  // Handle delete action
-                                },
-                              ),
-                            ],
-                          ),
-                          // Add more fields as needed
-                        ),
-                      ),
+                SizedBox(height: 0.0),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Text('NoPekerja')),
+                      DataColumn(label: Text('Nama')),
+                      DataColumn(label: Text('Cabang')),
+                      DataColumn(label: Text('Alamat Toko')),
+                      DataColumn(label: Text('Aksi')),
                     ],
-                  );
-                },
-              ),
+                    rows: rows,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 0.5),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(
+      BuildContext context, String documentId, String nama) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Konfirmasi Hapus"),
+          content: Text("Apakah Anda yakin ingin menghapus data '$nama'?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Batal"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Hapus"),
+              onPressed: () {
+                _karyawanService.deleteKaryawan(documentId);
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );
