@@ -446,7 +446,10 @@ class _HomePageState extends State<HomePage> {
             DataCell(Text(data['cabang'] ?? '')),
             DataCell(Text(data['alamatToko'] ?? '')),
             DataCell(IconButton(
-                icon: Icon(Icons.delete),
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
                 onPressed: () {
                   // _bootcampService.deleteBootcamp(document.id);
                   _showDeleteConfirmationDialog(
