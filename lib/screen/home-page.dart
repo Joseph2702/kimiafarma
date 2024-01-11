@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   List<String> medicineNames = [];
   List<String> medicineTypes = [];
+  List<String> medDevNames = [];
 
   @override
   void initState() {
@@ -97,6 +98,28 @@ class _HomePageState extends State<HomePage> {
   //   'Statins',
   //   'Antihypertensive',
   // ];
+  FloatingActionButton _buildCreateItemFAB() {
+    return FloatingActionButton(
+      onPressed: () async {
+        await _showCreateItemModal(null);
+      },
+      tooltip: 'Create Item',
+      child: Icon(Icons.add),
+      backgroundColor: Colors.blue, // Ganti dengan warna yang diinginkan
+    );
+  }
+
+  FloatingActionButton _buildCreateMedicalFAB() {
+    return FloatingActionButton(
+      onPressed: () async {
+        await _showCreateMedicalItemModal(null);
+      },
+      tooltip: 'Create Medical Item',
+      child: Icon(Icons.add),
+      backgroundColor:
+          Colors.orangeAccent, // Ganti dengan warna yang diinginkan
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +167,17 @@ class _HomePageState extends State<HomePage> {
                       color: colorBlueBase, fontFamily: 'Poppins-Regular'),
                 ),
               ),
+              NavigationRailDestination(
+                icon: Icon(
+                  Icons.local_hospital,
+                  color: colorBlueBase,
+                ),
+                label: Text(
+                  'Medical Devices',
+                  style: TextStyle(
+                      color: colorBlueBase, fontFamily: 'Poppins-Regular'),
+                ),
+              ),
             ],
             selectedIndex: _selectedIndex,
             onDestinationSelected: (int index) {
@@ -164,15 +198,10 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: _selectedIndex == 1
-          ? FloatingActionButton(
-              onPressed: () async {
-                await _showCreateItemModal(null);
-              },
-              tooltip: 'Create',
-              child: Icon(Icons.add),
-              backgroundColor: Colors.orangeAccent,
-            )
-          : null,
+          ? _buildCreateItemFAB()
+          : _selectedIndex == 3
+              ? _buildCreateMedicalFAB()
+              : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
@@ -335,11 +364,115 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _showCreateMedicalItemModal(String? documentId) async {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController stockController = TextEditingController();
+    TextEditingController priceController = TextEditingController();
+
+    if (documentId != null) {
+      // Fetch the existing item details from Firestore
+      DocumentSnapshot<Map<String, dynamic>> itemData = await FirebaseFirestore
+          .instance
+          .collection('alat')
+          .doc(documentId)
+          .get();
+
+      // Set the initial values in the controllers
+      nameController.text = itemData['nama_alat'];
+      stockController.text = itemData['stok'].toString();
+      priceController.text = itemData['harga'].toString();
+    }
+
+    await showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      documentId == null ? 'Create New Medical Device Item' : 'Edit Item',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: 'Name'),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: stockController,
+                      decoration: InputDecoration(labelText: 'Stock'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: priceController,
+                      decoration: InputDecoration(labelText: 'Price'),
+                    ),
+                    SizedBox(height: 16),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        String name = nameController.text.trim();
+                        String stock = stockController.text.trim();
+                        String price = priceController.text.trim();
+
+                        Map<String, dynamic> itemAlat = {
+                          'nama_alat': name,
+                          'stok': int.parse(stock),
+                          'harga': int.parse(price),
+                        };
+
+                        // Add the new item to the 'items' collection in Firestore
+                        if (documentId == null) {
+                          // Add the new item to the 'items' collection in Firestore
+                          await FirebaseFirestore.instance
+                              .collection('alat')
+                              .add(itemAlat);
+                        } else {
+                          // If documentId is not null, it means we are editing an existing item
+                          // Update the existing item in Firestore
+                          await FirebaseFirestore.instance
+                              .collection('alat')
+                              .doc(documentId)
+                              .update(itemAlat);
+                        }
+
+                        print('Name: $name, Stock: $stock, Price: $price');
+                        // if (filePath != null) {
+                        //   print('File Path: $filePath');
+                        // }
+
+                        Navigator.of(context).pop();
+                        //   }
+                        // }
+                      },
+                      child: Text(documentId == null ? 'Create' : 'Update'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<int> getDataCount() async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('obat')
-          .get();
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('obat').get();
 
       int documentCount = querySnapshot.size;
 
@@ -352,6 +485,17 @@ class _HomePageState extends State<HomePage> {
 
   List<String> filteredMedicineNames = [];
   List<String> filteredMedicineTypes = [];
+  List<String> filteredMedDeviceNames = [];
+
+  void filterMedDev() {
+    filteredMedDeviceNames.clear();
+
+    for (int i = 0; i < medDevNames.length; i++) {
+      if (medDevNames[i].toLowerCase().contains(searchItem)) {
+        filteredMedDeviceNames.add(medDevNames[i]);
+      }
+    }
+  }
 
   void filterData() {
     filteredMedicineNames.clear();
@@ -514,6 +658,8 @@ class _HomePageState extends State<HomePage> {
         return _buildInventoryPage();
       case 2:
         return _buildEmployeePage();
+      case 3:
+        return _buildMedicalDevicePage();
       default:
         return Text('Invalid Page');
     }
@@ -582,17 +728,12 @@ class _HomePageState extends State<HomePage> {
       key: key,
       title: Text(title),
       subtitle: Text(subtitle),
-      leading: const Icon(
-        Icons.local_hospital,
-        size: 48,
-        color: Colors.grey,
+      leading: Image.asset(
+        'assets/item1.jpg', // Default image path if no image URL
+        width: 48,
+        height: 48,
+        fit: BoxFit.cover,
       ),
-      // : Image.asset(
-      //     'assets/item1.jpg', // Default image path if no image URL
-      //     width: 48,
-      //     height: 48,
-      //     fit: BoxFit.cover,
-      //   ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -656,6 +797,137 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Widget _buildMedicalDevicePage() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              setState(() {
+                searchItem = value.toLowerCase();
+              });
+            },
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('alat').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              }
+
+              var data = snapshot.data!.docs;
+
+              var filteredData = data.where((item) {
+                return item['nama_alat'].toLowerCase().contains(searchItem) ||
+                    item['stok'].toLowerCase().contains(searchItem);
+              }).toList();
+
+              return ListView.builder(
+                itemCount: filteredData.length,
+                itemBuilder: (context, index) {
+                  var item = filteredData[index];
+                  return _buildMedicalItem(
+                      item['nama_alat'], item['stok'], item.id);
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMedicalItem(String title, int subtitle, String documentId) {
+    final key = ValueKey<String>(title);
+
+    return ListTile(
+      key: key,
+      title: Text(title),
+      subtitle: Text(subtitle.toString()),
+      leading: const Icon(
+        Icons.local_hospital,
+        size: 48,
+        color: Colors.grey,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.orange),
+            onPressed: () {
+              print('Edit button pressed for $title');
+              _showCreateMedicalItemModal(documentId);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.red),
+            onPressed: () async {
+              print('Delete button pressed for $title');
+
+              bool confirmDelete = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirm Delete'),
+                    content: Text('Are you sure you want to delete $title?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              // If the user confirms the delete, proceed with deletion
+              if (confirmDelete == true) {
+                await _deleteMedicalItem(documentId);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteMedicalItem(String documentId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('alat')
+          .doc(documentId)
+          .delete();
+      print('Item deleted successfully');
+    } catch (e) {
+      print('Error deleting item: $e');
+      // Handle error appropriately
+    }
+  }
+
   Widget _buildEmployeePage() {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
@@ -668,7 +940,9 @@ class _HomePageState extends State<HomePage> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
         List<DocumentSnapshot> documents = snapshot.data!.docs;
         List<DataRow> rows = [];
