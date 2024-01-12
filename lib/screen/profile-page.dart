@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kimiafarma/component/botBar.dart';
+import 'package:kimiafarma/component/rounded_button.dart';
 import 'package:kimiafarma/component/theme.dart';
+import 'package:kimiafarma/screen/login-page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -8,7 +12,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
-  
+  //profile page
   int _selectedIndex = 0;
 
   void _onHomePressed() {
@@ -26,7 +30,39 @@ class ProfilePageState extends State<ProfilePage> {
   void _onFabPressed() {
     print('FAB pressed');
   }
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  User? user = FirebaseAuth.instance.currentUser;
+
+  String userName = '';
+  String userEmail = '';
+
+  Future<void> _fetchUserData() async {
+    if (user != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>> userData =
+            await FirebaseFirestore.instance.collection('admin').doc(user!.uid).get();
+
+        if (userData.exists) {
+          String nama = userData['nama'];
+          String email = userData['email'];
+
+          setState(() {
+            userName = nama;
+            userEmail = email;
+          });
+        }
+      } catch (e) {
+        print('Error fetching user data: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +105,7 @@ class ProfilePageState extends State<ProfilePage> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Joko',
+                      '$userName',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -84,7 +120,7 @@ class ProfilePageState extends State<ProfilePage> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Joko@gmail.com',
+                      '$userEmail',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -96,13 +132,10 @@ class ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 30),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.80,
-                child: ElevatedButton(
-                  onPressed: () {
-                     Navigator.pushNamed(context, 'login_page');
-                  },
-                  child: Text('LOG OUT'),
-                  
-                  
+                child: RoundedButton(
+                  colour: colorBlueBase,
+                  title: 'Log Out',
+                  onPressed: _handleLogout,
                 ),
               ),
             ],
@@ -120,7 +153,17 @@ class ProfilePageState extends State<ProfilePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: DemoBottomAppBar(onFabPressed: _onFabPressed),
     );
-    
   }
-  
+
+   void _handleLogout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } catch (e) {
+      print("Error during logout: $e");
+    }
+    setState(() {});
+  }
 }

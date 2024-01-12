@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kimiafarma/component/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ForgotPage extends StatefulWidget {
   @override
@@ -6,7 +8,6 @@ class ForgotPage extends StatefulWidget {
 }
 
 class _ForgotPageState extends State<ForgotPage> {
-
   void _showErrorAlert(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -41,18 +42,37 @@ class _ForgotPageState extends State<ForgotPage> {
     );
   }
 
+  Future<void> _sendPasswordResetEmail(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      _showAlertDialog('Link reset password telah dikirim ke email Anda.');
+    } catch (error) {
+      print('Error: $error');
+      _showAlertDialog(
+          'Gagal mengirim email reset password. Silakan coba lagi.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forgot Password'),
-        backgroundColor: Color.fromARGB(94, 250, 251, 252),
+        backgroundColor: colorBlueBase, // Transparent background
+        elevation: 0,
+        leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context, 'login_page', (route) => false)),
       ),
       body: Center(
         child: Container(
           padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(0.0),
             color: Color.fromARGB(255, 26, 7, 92),
             boxShadow: [
               BoxShadow(
@@ -109,8 +129,7 @@ class _ForgotPageState extends State<ForgotPage> {
                       onPressed: () {
                         String email = emailController.text.trim();
                         if (email.isNotEmpty) {
-                          _showAlertDialog(
-                              'Link reset password telah dikirim ke email Anda.');
+                          _sendPasswordResetEmail(email);
                         } else {
                           _showAlertDialog('Masukkan alamat email Anda.');
                         }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "707178907551",
+    "project_id": "kimiafarma-b63e6",
+    "storage_bucket": "kimiafarma-b63e6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707178907551:android:6db71349564ebd59fc1faa",
+        "android_client_info": {
+          "package_name": "com.example.kimiafarma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnIMkRhAdSBPsOKoy9xLRiBAHj1WtUg60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
