@@ -46,7 +46,10 @@ class ProfilePageState extends State<ProfilePage> {
     if (user != null) {
       try {
         DocumentSnapshot<Map<String, dynamic>> userData =
-            await FirebaseFirestore.instance.collection('admin').doc(user!.uid).get();
+            await FirebaseFirestore.instance
+                .collection('admin')
+                .doc(user!.uid)
+                .get();
 
         if (userData.exists) {
           String nama = userData['nama'];
@@ -155,7 +158,7 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 
-   void _handleLogout() async {
+  void _handleLogout() async {
     try {
       await FirebaseAuth.instance.signOut();
       Navigator.of(context).push(
