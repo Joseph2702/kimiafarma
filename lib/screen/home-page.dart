@@ -58,46 +58,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Future<String?> _uploadImage(File file) async {
-  //   try {
-  //     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-  //     Reference storageReference =
-  //         FirebaseStorage.instance.ref().child('inventory_images/$fileName');
-  //     UploadTask uploadTask = storageReference.putFile(file);
-  //     TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
-  //     String downloadURL = await taskSnapshot.ref.getDownloadURL();
-  //     return downloadURL;
-  //   } catch (e) {
-  //     print('Error uploading image: $e');
-  //     return null;
-  //   }
-  // }
-
-  // final List<String> medicineNames = [
-  //   'Paracetamol',
-  //   'Aspirin',
-  //   'Ibuprofen',
-  //   'Cetirizine',
-  //   'Omeprazole',
-  //   'Amoxicillin',
-  //   'Loratadine',
-  //   'Metformin',
-  //   'Atorvastatin',
-  //   'Losartan',
-  // ];
-
-  // final List<String> medicineTypes = [
-  //   'Pain Reliever',
-  //   'Pain Reliever',
-  //   'Anti-Inflammatory',
-  //   'Antihistamine',
-  //   'Proton Pump Inhibitor',
-  //   'Antibiotic',
-  //   'Antihistamine',
-  //   'Antidiabetic',
-  //   'Statins',
-  //   'Antihypertensive',
-  // ];
   FloatingActionButton _buildCreateItemFAB() {
     return FloatingActionButton(
       onPressed: () async {
@@ -215,7 +175,6 @@ class _HomePageState extends State<HomePage> {
     File? filePath;
 
     if (documentId != null) {
-      // Fetch the existing item details from Firestore
       DocumentSnapshot<Map<String, dynamic>> itemData = await FirebaseFirestore
           .instance
           .collection('obat')
@@ -271,42 +230,6 @@ class _HomePageState extends State<HomePage> {
                       decoration: InputDecoration(labelText: 'Price'),
                     ),
                     SizedBox(height: 16),
-                    // ElevatedButton(
-                    //   onPressed: () async {
-                    //     try {
-                    //       final ImagePicker picker = ImagePicker();
-                    //       final XFile? result = await picker.pickImage(
-                    //         source: ImageSource.gallery,
-                    //       );
-
-                    //       setState(() {
-                    //         if (result != null) {
-                    //           isPickingFile = false;
-                    //           filePath = File(result.path);
-                    //         } else {
-                    //           // Handle the case where the user cancels the image picker
-                    //           isPickingFile = false;
-                    //         }
-                    //       });
-                    //     } catch (e) {
-                    //       print('Error picking file: $e');
-                    //       setState(() {
-                    //         isPickingFile = false;
-                    //       });
-                    //     }
-                    //   },
-                    //   child: Row(
-                    //     mainAxisSize: MainAxisSize.min,
-                    //     children: [
-                    //       Text(
-                    //         isPickingFile ? 'Picking File...' : 'Pick a File',
-                    //         style: TextStyle(
-                    //           color: isPickingFile ? null : Colors.white,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                     SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () async {
@@ -833,10 +756,13 @@ class _HomePageState extends State<HomePage> {
 
               var data = snapshot.data!.docs;
 
-              var filteredData = data.where((item) {
-                return item['nama_alat'].toLowerCase().contains(searchItem) ||
-                    item['stok'].toLowerCase().contains(searchItem);
-              }).toList();
+             var filteredData = data.where((item) {
+  String namaAlat = item['nama_alat'].toString().toLowerCase();
+  String stok = item['stok'].toString().toLowerCase();
+
+  return namaAlat.contains(searchItem) || stok.contains(searchItem);
+}).toList();
+
 
               return ListView.builder(
                 itemCount: filteredData.length,
